@@ -1,6 +1,6 @@
 {
   "name": "stream-recorder",
-  "version": "0.1",
+  "version": "0.1.0",
   "description": "A stream recorder for freeformportland.org",
   "dependencies": {
     "aws-sdk": "^2.773.0",
