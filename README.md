@@ -3,7 +3,7 @@
 A stream recorder for freeformportland.org
 
 
-Copy the .env.example file to a new file named .env and add your AWS credentials like so:
+Copy the `.env.example` file to a new file named `.env` and add your AWS credentials like so:
 
 ```
 AWS_ACCESS_KEY_ID="XXX"
