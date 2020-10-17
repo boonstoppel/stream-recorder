@@ -1,4 +1,4 @@
-# stream-ripper
+# stream-recorder
 
 A stream recorder for freeformportland.org
 
