@@ -13,11 +13,11 @@ const streamUrl = 'http://listen.freeformportland.org:8000/stream'
 const durationInSeconds = 10
 
 
+// Record the audo stream and upload it to AWS S3.
 streamRecorder.record({
     streamUrl,
     durationInSeconds
 }, (filePath) => {
-    // Uploads the finished recording to aws s3
     s3.upload({
         filePath: filePath,
         key: getS3KeyFilePath(filePath),

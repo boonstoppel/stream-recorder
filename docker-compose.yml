@@ -11,10 +11,10 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - TZ=America/Los_Angeles
     volumes:
       - ./src/:/home/node/app
     command: "npm start"
-
 
   npm:
     image: node:13.7
@@ -23,3 +23,5 @@ services:
       - ./src:/home/node/app
     working_dir: /home/node/app
     entrypoint: ['npm']
+    environment:
+      - TZ=America/Los_Angeles
