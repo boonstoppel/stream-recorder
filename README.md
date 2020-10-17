@@ -27,7 +27,7 @@ To start a recording run:
 docker-compose run --rm node record.js
 ```
 
-Edit record.js to change s3Bucket, streamUrl and/or durationInSeconds for the duration of the radio show to record.
+Edit `record.js` to change `s3Bucket`, `streamUrl` and/or `durationInSeconds` for the duration of the radio show to record.
 
 ```javascript
 // The root s3 bucket to store the 
