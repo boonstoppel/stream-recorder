@@ -26,3 +26,17 @@ To start a recording run:
 ```
 docker-compose run --rm node record.js
 ```
+
+Edit record.js to change s3Bucket, streamUrl and/or durationInSeconds for the duration of the radio show to record.
+
+```javascript
+// The root s3 bucket to store the 
+// recordings in
+const s3Bucket = 'freeform-radio-org'
+
+// The icecast radio stream
+const streamUrl = 'http://listen.freeformportland.org:8000/stream'
+
+// Duration of the recording
+const durationInSeconds = 10
+```
