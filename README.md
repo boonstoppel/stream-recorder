@@ -11,12 +11,12 @@ AWS_SECRET_ACCESS_KEY="XXX"
 AWS_DEFAULT_REGION="us-west-2"
 ```
 
-Then run:
+Create and start containers:
 ```
-docker-compose up -d
+docker-compose up
 ```
 
-Then run:
+npm install:
 ```
 docker-compose run --rm npm install
 ```
