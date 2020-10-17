@@ -26,7 +26,7 @@ const startRecording = (icecastStream, durationInSeconds, callback) => {
         console.log(`Recording with name ${fileName} already exists`)
         const prompt = new Confirm('Do you want to overwrite it?')
 
-        prompt.ask(function(answer) {
+        prompt.ask((answer) => {
             if (!answer) {
                 console.log('Terminating...')
                 process.exit()

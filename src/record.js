@@ -52,6 +52,6 @@ const getS3KeyFilePath = (filePath) => {
 
 
 // Exit this program with ctrl c
-process.on('SIGINT', function() {
+process.on('SIGINT', () => {
     process.exit()
 })

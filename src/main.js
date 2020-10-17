@@ -7,7 +7,7 @@ const { spawn } = require('child_process')
 // 0 */1 * * *
 // Every 2 hours
 // 0 */1 * * *
-const job = new CronJob('* * * * *', function() {
+const job = new CronJob('* * * * *', () => {
 	console.log('')
 	console.log('Starting new recording')
 
@@ -40,6 +40,6 @@ console.log('')
 
 
 // Exit this program with ctrl c
-process.on('SIGINT', function() {
+process.on('SIGINT', () => {
     process.exit()
 })
