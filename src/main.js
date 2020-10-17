@@ -31,7 +31,7 @@ const job = new CronJob('* * * * *', () => {
 console.log('')
 console.log('')
 console.log('-----------------------------------------------')
-console.log('----- FREEFORMRADIO.ORG STREAM RECORDER -------')
+console.log('----- FREEFORMPORTLAND.ORG STREAM RECORDER -------')
 console.log('-----------------------------------------------')
 console.log('')
 console.log('Next recording starts:')
