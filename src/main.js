@@ -20,7 +20,7 @@ const job = new CronJob('* * * * *', () => {
 
 	record.on('close', (code) => {
   		console.log(`Job finished`)
-  		console.log('-----------------------------------------------')
+  		console.log('--------------------------------------------------')
 		console.log('')
   		console.log('Next recording starts:')
   		console.log(job.nextDates().format('MMMM Do YYYY, h:mm:ss a'))
@@ -30,9 +30,9 @@ const job = new CronJob('* * * * *', () => {
 
 console.log('')
 console.log('')
-console.log('-----------------------------------------------')
+console.log('--------------------------------------------------')
 console.log('----- FREEFORMPORTLAND.ORG STREAM RECORDER -------')
-console.log('-----------------------------------------------')
+console.log('--------------------------------------------------')
 console.log('')
 console.log('Next recording starts:')
 console.log(job.nextDates().format('MMMM Do YYYY, h:mm:ss a'))
