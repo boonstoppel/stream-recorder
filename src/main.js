@@ -22,8 +22,6 @@ const job = new CronJob('* * * * *', () => {
   		console.log(`Job finished`)
   		console.log('--------------------------------------------------')
 		console.log('')
-  		console.log('Next recording starts:')
-  		console.log(job.nextDates().format('MMMM Do YYYY, h:mm:ss a'))
 	})
 }, null, true, 'America/Los_Angeles')
 
