@@ -11,15 +11,16 @@ AWS_SECRET_ACCESS_KEY="XXX"
 AWS_DEFAULT_REGION="us-west-2"
 ```
 
+npm install:
+```
+docker-compose run --rm npm install
+```
+
 Create and start containers:
 ```
 docker-compose up
 ```
 
-npm install:
-```
-docker-compose run --rm npm install
-```
 
 To start a recording run:
 ```
