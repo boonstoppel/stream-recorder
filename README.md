@@ -27,6 +27,21 @@ To start a recording run:
 docker-compose run --rm node record.js
 ```
 
+Edit `src/main.js` to change the timing on the CronJob:
+
+```javascript
+// Every Minute
+// * * * * *
+// Every hour
+// 0 */1 * * *
+// Every 2 hours
+// 0 */1 * * *
+const job = new CronJob('* * * * *', function() {
+   // ...
+}
+```
+
+
 Edit `src/record.js` to change `s3Bucket`, `streamUrl` and/or `durationInSeconds` for the duration of the radio show to record.
 
 ```javascript
