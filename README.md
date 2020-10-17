@@ -21,7 +21,7 @@ npm install:
 docker-compose run --rm npm install
 ```
 
-To start recording run:
+To start a recording run:
 ```
 docker-compose run --rm node record.js
 ```
