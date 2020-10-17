@@ -18,7 +18,7 @@ docker-compose up -d
 
 Then run:
 ```
-docker-compose run --rm npm update
+docker-compose run --rm npm install
 ```
 
 To start recording run:
