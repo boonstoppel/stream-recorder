@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  node:
+    image: "node:13.7"
+    container_name: node
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - ./src/:/home/node/app
+    command: "npm start"
+
+
+  npm:
+    image: node:13.7
+    container_name: npm
+    volumes:
+      - ./src:/home/node/app
+    working_dir: /home/node/app
+    entrypoint: ['npm']

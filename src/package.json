@@ -1,0 +1,19 @@
+{
+  "name": "stream-recorder",
+  "version": "0.1",
+  "description": "A stream recorder for freeformportland.org",
+  "dependencies": {
+    "aws-sdk": "^2.773.0",
+    "cli-progress": "^3.8.2",
+    "icy": "2.0.0",
+    "path": "^0.12.7",
+    "prompt-confirm": "^2.0.4",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tobias Boonstoppel",
+  "license": "MIT"
+}
