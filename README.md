@@ -46,7 +46,7 @@ Edit `src/record.js` to change `s3Bucket`, `streamUrl` and/or `durationInSeconds
 
 ```javascript
 // The root s3 bucket to store the recordings in
-const s3Bucket = 'freeform-radio-org'
+const s3Bucket = 'free-form-portland-org'
 
 // The icecast radio stream
 const streamUrl = 'http://listen.freeformportland.org:8000/stream'
