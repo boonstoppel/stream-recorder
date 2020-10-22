@@ -11,14 +11,23 @@ const baseFolder = 'recordings'
 // Fancy progress bar to be fancy.
 const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy)
 
+// If the script is called with parameter -i it will ask before overwriting
+// existing recordings and show progress bar.
+// This option is not needed when running daemonized.
+const isInteractive = process.argv[2] == '-i'
+
 
 const startRecording = (icecastStream, durationInSeconds, callback) => {
-    var fileName = getFileNameFromDate()
-    var folder = path.join(process.cwd(), baseFolder)
-    var filePath = path.join(folder, fileName)
+    const fileName = getFileNameFromDate()
+    const folder = path.join(process.cwd(), baseFolder)
+    const filePath = path.join(folder, fileName)
 
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder)
+    }
+
+    if (!isInteractive && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath)
     }
 
     if (fs.existsSync(filePath)) {
@@ -55,7 +64,7 @@ const startRecording = (icecastStream, durationInSeconds, callback) => {
 
 const recordStream = (data) => {
     console.log(`Recording to: ${data.fileName}`)
-    var outStream = fs.createWriteStream(data.filePath, { flags: 'w' })
+    const outStream = fs.createWriteStream(data.filePath, { flags: 'w' })
 
     data.icecastStream.on('data', (data) => {
         try {
@@ -65,24 +74,29 @@ const recordStream = (data) => {
         }
     })
 
+    let progressBarInterval;
 
-    progressBar.start(data.durationInSeconds, 0);
+    if (isInteractive) {
+        progressBar.start(data.durationInSeconds, 0)
 
-    var currentStep = 0;
-    let progressBarInterval = setInterval(() => {
-        currentStep++
-        progressBar.update(currentStep)
-    }, 1000)
+        var currentStep = 0
+        progressBarInterval = setInterval(() => {
+            currentStep++
+            progressBar.update(currentStep)
+        }, 1000)
+    }
 
     setTimeout(finishRecording.bind(
-        null, data, progressBarInterval, outStream), data.durationInSeconds * 1000)
+        null, data, outStream, progressBarInterval), data.durationInSeconds * 1000)
 }
 
-const finishRecording = (data, progressBarInterval, outStream) => {
-    clearInterval(progressBarInterval)
+const finishRecording = (data, outStream, progressBarInterval) => {
+    if (isInteractive) {
+        clearInterval(progressBarInterval)
 
-    progressBar.update(data.durationInSeconds)
-    progressBar.stop()
+        progressBar.update(data.durationInSeconds)
+        progressBar.stop()
+    }
 
     console.log('Finish recording...')
     outStream.close()
