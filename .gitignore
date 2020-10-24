@@ -1,4 +1,4 @@
-/.env
+*.env
 .DS_Store
-/src/node_modules
-/src/recordings
+node_modules
+src/recordings

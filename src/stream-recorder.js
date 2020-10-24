@@ -16,6 +16,7 @@ const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy)
 // This option is not needed when running daemonized.
 const isInteractive = process.argv[2] == '-i'
 
+const zeroPadNum = n => n.toString().padStart(2, '0');
 
 const startRecording = (icecastStream, durationInSeconds, callback) => {
     const fileName = getFileNameFromDate()
@@ -105,18 +106,19 @@ const finishRecording = (data, outStream, progressBarInterval) => {
 }
 
 // On this machine the recordings are stored as:
-// rec-year-month-day-hour.mp3 eg. rec-2020-10-17-3.mp3
+// rec-year-month-day-hour.mp3 eg. rec_20200105-03.mp3
 const getFileNameFromDate = () => {
     let date = new Date()
 
     let time = [
         date.getFullYear(), 
-        date.getMonth() + 1, 
-        date.getDate(),
-        date.getHours()
-    ].join('-')
+        zeroPadNum(date.getMonth() + 1),
+        zeroPadNum(date.getDate()),
+    ].join('')
 
-    return `rec-${time}.mp3`
+    const hours = zeroPadNum(date.getHours());
+
+    return `rec_${time}-${hours}.mp3`
 }
 
 
