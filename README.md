@@ -31,9 +31,8 @@ Edit `src/main.js` to change the timing on the CronJob:
 // Every hour
 // 0 */1 * * *
 // Every 2 hours
-// 0 */1 * * *
-const job = new CronJob('* * * * *', function() {
-   // ...
+// 0 */2 * * *
+const job = new CronJob('0 */2 * * *', function() {
 }
 ```
 
@@ -41,9 +40,6 @@ const job = new CronJob('* * * * *', function() {
 Edit `src/record.js` to change `streamUrl` and/or `durationInSeconds` for the duration of the radio show to record.
 
 ```javascript
-// The root s3 bucket to store the recordings in
-const s3Bucket = 'free-form-portland-org'
-
 // The icecast radio stream
 const streamUrl = 'http://listen.freeformportland.org:8000/stream'
 

@@ -13,7 +13,7 @@ const s3Bucket = process.env.S3_BUCKET;
 const streamUrl = 'http://listen.freeformportland.org:8000/stream'
 
 // Duration of the recording
-const durationInSeconds = 50;
+const durationInSeconds = 7200; // two hours
 
 
 // Record the audo stream and upload it to AWS S3.
