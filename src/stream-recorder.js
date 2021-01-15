@@ -71,6 +71,12 @@ const recordStream = (data) => {
           outStream.write(data)
         }
         catch(err) {
+            console.log(`Error: ${err.message}`)
+            
+            // console.log('Restarting recorder')
+            // Restart the recorder.
+            // startRecording(
+            //    data.icecastStream, data.durationInSeconds, data.callback)
         }
     })
 
@@ -98,7 +104,7 @@ const finishRecording = (data, outStream, progressBarInterval) => {
         progressBar.stop()
     }
 
-    console.log('Finish recording...')
+    console.log('Finish recording')
     outStream.close()
 
     data.callback(data.filePath)
