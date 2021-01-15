@@ -1,17 +1,12 @@
 const CronJob = require('cron').CronJob
 const { spawn } = require('child_process')
 
-// Every Minute
-// * * * * *
-// Every hour
-// 0 */1 * * *
-// Every 2 hours
-// 0 */1 * * *
-const job = new CronJob('* * * * *', () => {
+// Every 2 hours on the hour
+const job = new CronJob('0 */2 * * *', () => {
 	console.log('')
 	console.log('Starting new recording')
 
-	const record = spawn('node', ['record.js', '-i'])
+	const record = spawn('node', ['src/record.js', '-i'])
 
 	record.stdout.setEncoding('utf8')
 	record.stdout.on('data', (data) => {

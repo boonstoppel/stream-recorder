@@ -9,23 +9,19 @@ Copy the `.env.example` file to a new file named `.env` and add your AWS credent
 AWS_ACCESS_KEY_ID="XXX"
 AWS_SECRET_ACCESS_KEY="XXX"
 AWS_DEFAULT_REGION="us-west-2"
+S3_BUCKET="bucket-name"
 ```
 
-npm install:
-```
-docker-compose run --rm npm install
-```
-
-Create and start containers:
-```
-docker-compose up
+Create Docker image 
+```sh
+$ docker build -t stream-recorder .
 ```
 
+Run a container from the built image
+```sh
+$ docker run [-flags] stream-recorder
+```
 
-To start a recording run:
-```
-docker-compose run --rm node record.js
-```
 
 Edit `src/main.js` to change the timing on the CronJob:
 
@@ -35,19 +31,15 @@ Edit `src/main.js` to change the timing on the CronJob:
 // Every hour
 // 0 */1 * * *
 // Every 2 hours
-// 0 */1 * * *
-const job = new CronJob('* * * * *', function() {
-   // ...
+// 0 */2 * * *
+const job = new CronJob('0 */2 * * *', function() {
 }
 ```
 
 
-Edit `src/record.js` to change `s3Bucket`, `streamUrl` and/or `durationInSeconds` for the duration of the radio show to record.
+Edit `src/record.js` to change `streamUrl` and/or `durationInSeconds` for the duration of the radio show to record.
 
 ```javascript
-// The root s3 bucket to store the recordings in
-const s3Bucket = 'free-form-portland-org'
-
 // The icecast radio stream
 const streamUrl = 'http://listen.freeformportland.org:8000/stream'
 

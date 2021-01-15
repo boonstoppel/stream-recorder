@@ -1,16 +1,19 @@
+// load env vars from .env
+require('dotenv').config();
+
 const streamRecorder = require('./stream-recorder')
 const s3 = require('./s3')
 const fs = require('fs')
 
 // The root s3 bucket to store the 
 // recordings in
-const s3Bucket = 'freeform-radio-org'
+const s3Bucket = process.env.S3_BUCKET;
 
 // The icecast radio stream
 const streamUrl = 'http://listen.freeformportland.org:8000/stream'
 
 // Duration of the recording
-const durationInSeconds = 10
+const durationInSeconds = 7200; // two hours
 
 
 // Record the audo stream and upload it to AWS S3.
@@ -41,13 +44,16 @@ streamRecorder.record({
 // s3Bucket/year/month/day/rec-2020-10-17-3.mp3
 //
 // for example:
-// https://freeform-radio-org.s3-us-west-2.amazonaws.com/2020/10/17/rec-2020-10-17-3.mp3
+// https://freeform-radio-org.s3-us-west-2.amazonaws.com/2020/01/05/rec_20200105-03.mp3
 const getS3KeyFilePath = (filePath) => {
     const fileData = filePath.split('/')
     const fileName = fileData[fileData.length - 1]
-    const data = fileName.split('-')
+    const data = fileName.split('_')[1].split('-')[0];
+    const year = data.slice(0, 4);
+    const month = data.slice(4, 6);
+    const date = data.slice(6, 8);
 
-    return `${data[1]}/${data[2]}/${data[3]}/${fileName}`
+    return `${year}/${month}/${date}/${fileName}`;
 }
 
 
