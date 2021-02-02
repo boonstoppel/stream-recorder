@@ -6,7 +6,7 @@ const job = new CronJob('0 */2 * * *', () => {
 	console.log('')
 	console.log('Starting new recording')
 
-	const record = spawn('node', ['src/record.js', '-i'])
+	const record = spawn('node', ['src/record.js'])
 
 	record.stdout.setEncoding('utf8')
 	record.stdout.on('data', (data) => {
