@@ -105,7 +105,7 @@ const finishRecording = (data, outStream, progressBarInterval) => {
         progressBar.stop()
     }
 
-    console.log('Finish recording')
+    console.log(`Finished recording to: ${data.fileName}`)
     outStream.close()
 
     data.callback(data.filePath)
