@@ -3,6 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const Confirm = require('prompt-confirm')
 const cliProgress = require('cli-progress')
+const request = require('request')
 
 // This is the location where the stream gets recorded to 
 // before its uploaded to somewhere else.
@@ -18,17 +19,38 @@ const isInteractive = process.argv[2] == '-i'
 
 const zeroPadNum = n => n.toString().padStart(2, '0');
 
-const startRecording = (icecastStream, durationInSeconds, callback) => {
-    const fileName = getFileNameFromDate()
-    const folder = path.join(process.cwd(), baseFolder)
-    const filePath = path.join(folder, fileName)
+// The outstream to write the different mp3 files.
+var outStream;
 
+var allRecordings = [];
+
+
+const record = (config, callback) => {
+    icecast.get(config.streamUrl, (icecastStream) => {
+        startRecording(icecastStream, config, callback)
+    })
+}
+
+const startRecording = (icecastStream, config, callback) => {
+    let folder = path.join(process.cwd(), baseFolder)
+    
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder)
     }
 
+    const fileName = config.fileName ? config.fileName : getFileNameFromDate()
+
+    let filePath = getFilePathFromName(fileName)
+
     if (!isInteractive && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath)
+    }
+
+    let data = {
+        icecastStream, 
+        config, 
+        fileName,
+        callback
     }
 
     if (fs.existsSync(filePath)) {
@@ -42,49 +64,71 @@ const startRecording = (icecastStream, durationInSeconds, callback) => {
                 process.exit()
             } else {
                 fs.unlinkSync(filePath)
-                recordStream({
-                    icecastStream, 
-                    durationInSeconds, 
-                    fileName, 
-                    filePath, 
-                    callback
-                })
+                recordStream(data)
             }
         })
     } else {
-        recordStream({
-            icecastStream, 
-            durationInSeconds, 
-            fileName, 
-            filePath, 
-            callback
-        })
+        recordStream(data)
     }
+}
+
+const checkStreamStatus = (data) => {
+    let httpRequest = request(data.config.streamUrl, null, (err, res) => {
+        if (res.statusCode == 404) {
+            console.error('Server status: 404')
+            setTimeout(checkStreamStatus.bind(null, data), 1200)
+        }
+    })
+
+    setTimeout(() => {
+        if (httpRequest.response.statusCode == 200) {
+            httpRequest.abort()
+            console.log('Re-starting recorder!')
+
+            // Re-start recorder with different file name.
+            data.config.fileName = getChunkedFileName(data.fileName)
+            record(data.config, data.callback)
+        }
+    }, 1000)
+}
+
+
+const getChunkedFileName = (fileName) => {
+    return fileName.indexOf('_part_') == -1 ? 
+        fileName.replace('.mp3', '_part_2.mp3') :
+        fileName.replace( /_part_(\d+)\.mp3/g, (data, num) => {
+            return '_part_' + (parseInt(num) + 1) + '\.mp3'
+        })
 }
 
 
 const recordStream = (data) => {
-    console.log(`Recording to: ${data.fileName}`)
-    const outStream = fs.createWriteStream(data.filePath, { flags: 'w' })
+    allRecordings.push(data.fileName)
 
-    data.icecastStream.on('data', (data) => {
-        try {
-          outStream.write(data)
-        }
-        catch(err) {
-            console.log(`Error: ${err.message}`)
-            
-            // console.log('Restarting recorder')
-            // Restart the recorder.
-            // startRecording(
-            //    data.icecastStream, data.durationInSeconds, data.callback)
-        }
+    outStream = fs.createWriteStream(
+        getFilePathFromName(data.fileName), { flags: 'w' })
+
+    let checkDataFlowInterval
+
+    console.log(`Recording to: ${data.fileName}`)
+
+    data.icecastStream.on('data', (streamData) => {
+        outStream.write(streamData)
+
+        clearTimeout(checkDataFlowInterval)
+        checkDataFlowInterval = setTimeout(() => {
+            // After 1 sec. of receiving no data, start checking if 
+            // streaming server is up and running.
+            checkStreamStatus(data)
+            outStream.close()
+            console.error(`Recording interrupted: ${data.fileName}`)
+        }, 1000)
     })
 
-    let progressBarInterval;
+    let progressBarInterval
 
     if (isInteractive) {
-        progressBar.start(data.durationInSeconds, 0)
+        progressBar.start(data.config.durationInSeconds, 0)
 
         var currentStep = 0
         progressBarInterval = setInterval(() => {
@@ -94,21 +138,20 @@ const recordStream = (data) => {
     }
 
     setTimeout(finishRecording.bind(
-        null, data, outStream, progressBarInterval), data.durationInSeconds * 1000)
+        null, data, progressBarInterval), data.config.durationInSeconds * 1000)
 }
 
-const finishRecording = (data, outStream, progressBarInterval) => {
+const finishRecording = (data, progressBarInterval) => {
     if (isInteractive) {
         clearInterval(progressBarInterval)
-
-        progressBar.update(data.durationInSeconds)
+        progressBar.update(data.config.durationInSeconds)
         progressBar.stop()
     }
 
     console.log(`Finished recording to: ${data.fileName}`)
     outStream.close()
 
-    data.callback(data.filePath)
+    data.callback(allRecordings)
 }
 
 // On this machine the recordings are stored as:
@@ -122,16 +165,16 @@ const getFileNameFromDate = () => {
         zeroPadNum(date.getDate()),
     ].join('')
 
-    const hours = zeroPadNum(date.getHours());
+    const hours = zeroPadNum(date.getHours())
 
     return `rec_${time}-${hours}.mp3`
 }
 
 
+const getFilePathFromName = (fileName) => {
+    return path.join(path.join(process.cwd(), baseFolder), fileName)
+}
+
 module.exports = {
-    record: (config, callback) => {
-        icecast.get(config.streamUrl, (icecastStream) => {
-            startRecording(icecastStream, config.durationInSeconds, callback)
-        })
-    }
+    record
 }
