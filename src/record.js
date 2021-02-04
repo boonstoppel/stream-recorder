@@ -21,14 +21,19 @@ streamRecorder.record({
     streamUrl,
     durationInSeconds
 }, (recordings) => {
+    console.log(`Finished recording ${recordings.length} file(s)`)
+
     for (var i = 0; i < recordings.length; i++) {
+        console.log(`Uploading file ${recordings[i]}`)
+
         s3.upload({
             filePath: recordings[i],
             key: getS3KeyFilePath(recordings[i]),
             bucket: s3Bucket
         }, (location) => {
-            console.log('Recording uploaded to:')
+            console.log('url:')
             console.log(location)
+
             fs.unlinkSync(recordings[i])
         })
     }

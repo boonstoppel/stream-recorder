@@ -5,13 +5,11 @@
   "main": "main.js",
   "dependencies": {
     "aws-sdk": "^2.773.0",
-    "cli-progress": "^3.8.2",
+    "axios": "^0.21.1",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
     "icy": "2.0.0",
     "path": "^0.12.7",
-    "prompt-confirm": "^2.0.4",
-    "request": "^2.88.2",
     "url": "^0.11.0"
   },
   "devDependencies": {},
