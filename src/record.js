@@ -20,25 +20,20 @@ const durationInSeconds = 7200; // two hours
 streamRecorder.record({
     streamUrl,
     durationInSeconds
-}, (recordings) => {
-    console.log(`Finished recording ${recordings.length} file(s)`)
+}, (filePath) => {
+    console.log(`Uploading file ${filePath}`)
 
-    for (var i = 0; i < recordings.length; i++) {
-        console.log(`Uploading file ${recordings[i]}`)
+    s3.upload({
+        filePath: filePath,
+        key: getS3KeyFilePath(filePath),
+        bucket: s3Bucket
+    }, (location) => {
+        console.log('url:')
+        console.log(location)
 
-        s3.upload({
-            filePath: recordings[i],
-            key: getS3KeyFilePath(recordings[i]),
-            bucket: s3Bucket
-        }, (location) => {
-            console.log('url:')
-            console.log(location)
-
-            fs.unlinkSync(recordings[i])
-        })
-    }
-
-    process.exit()
+        //fs.unlinkSync(filePath)
+        process.exit()
+    })
 })
 
 

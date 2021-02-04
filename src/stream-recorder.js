@@ -9,34 +9,37 @@ const baseFolder = 'recordings'
 
 const zeroPadNum = n => n.toString().padStart(2, '0')
 
-// The outstream to write the different mp3 files.
+// The stream writing the recording.
 var outStream
 
-var allRecordings = []
+// The incoming stream to icecast.
+var inStream
 
 var recordingTimeIsUp = false
 
+var checkDataFlowInterval
 
-const startRecording = (icecastStream, config) => {
-    let folder = path.join(process.cwd(), baseFolder)
+
+const startRecording = (config) => {
+    const folder = path.join(process.cwd(), baseFolder)
     
     if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder)
     }
 
-    const fileName = config.fileName ? config.fileName : getFileNameFromDate()
+    const fileName = getFileNameFromDate()
+    const filePath = getFilePathFromName(fileName)
 
-    let filePath = getFilePathFromName(fileName)
-
-    if (fs.existsSync(filePath)) {
+    if (!config.append && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath)
     }
     
-    recordStream({
-        icecastStream, 
+    recordStream({ 
         config, 
         fileName
     })
+
+    return filePath
 }
 
 const checkStreamStatus = (data) => {
@@ -47,19 +50,14 @@ const checkStreamStatus = (data) => {
         .then(response => {
             if (response.data.statusCode == 200 && !recordingTimeIsUp) {
                 console.log('Re-starting recorder!')
-                // Re-start recorder with different file name.
-                data.config.fileName = getChunkedFileName(data.fileName)
-                
+                data.config.append = true;
                 icecast.get(data.config.streamUrl, (icecastStream) => {
-                    startRecording(icecastStream, data.config)
+                    inStream = icecastStream
+                    startRecording(data.config)
                 })
             }
         })
         .catch(error => {
-            if (axios.isCancel(error)) {
-                console.log('Request canceled', error.message)
-            }
-
             if (error.response.status == 404) {
                 console.error('Server is down...')
                 if (!recordingTimeIsUp) {
@@ -69,44 +67,25 @@ const checkStreamStatus = (data) => {
         })
 }
 
-
-const getChunkedFileName = (fileName) => {
-    return fileName.indexOf('_part_') == -1 ? 
-        fileName.replace('.mp3', '_part_2.mp3') :
-        fileName.replace( /_part_(\d+)\.mp3/g, (data, num) => {
-            return '_part_' + (parseInt(num) + 1) + '\.mp3'
-        })
-}
-
-
 const recordStream = (data) => {
-    allRecordings.push(data.fileName)
+    const filePath = getFilePathFromName(data.fileName)
+    outStream = fs.createWriteStream(filePath, {flags: 'a'})
 
-    outStream = fs.createWriteStream(
-        getFilePathFromName(data.fileName), { flags: 'w' })
-
-    let checkDataFlowInterval
-
-    console.log(`Recording ${data.fileName}`)
-
-    data.icecastStream.on('data', (streamData) => {
+    inStream.on('data', (streamData) => {
         outStream.write(streamData)
 
         clearTimeout(checkDataFlowInterval)
         checkDataFlowInterval = setTimeout(() => {
+            endStreams()
+            console.error(`Recording ${data.fileName} interrupted`)
+
             // After 1 sec. of receiving no data, start checking if 
             // streaming server is up and running.
             checkStreamStatus(data)
-            outStream.close()
-            console.error(`Recording ${data.fileName} interrupted`)
         }, 1000)
     })
-}
 
-const finishRecording = (callback) => {
-    recordingTimeIsUp = true
-    outStream.close()
-    callback(allRecordings)
+    console.log(`Recording ${data.fileName}`)
 }
 
 // On this machine the recordings are stored as:
@@ -125,18 +104,36 @@ const getFileNameFromDate = () => {
     return `rec_${time}-${hours}.mp3`
 }
 
-
 const getFilePathFromName = (fileName) => {
     return path.join(path.join(process.cwd(), baseFolder), fileName)
+}
+
+const finishRecording = (fileName, callback) => {
+    clearTimeout(checkDataFlowInterval)
+    endStreams()
+    recordingTimeIsUp = true
+    callback(fileName)
+}
+
+const endStreams = () => {
+    if (inStream && typeof inStream.end !== 'undefined') {
+        inStream.end()
+        inStream = null
+    }
+
+    if (outStream && typeof outStream.end !== 'undefined') {
+        outStream.end()
+        outStream = null
+    }
 }
 
 module.exports = {
     record: (config, callback) => {
         icecast.get(config.streamUrl, (icecastStream) => {
-            startRecording(icecastStream, config)
+            inStream = icecastStream
 
             setTimeout(finishRecording.bind(
-                null, callback), config.durationInSeconds * 1000)
+                null, startRecording(config), callback), config.durationInSeconds * 1000)
         })
     }
 }
